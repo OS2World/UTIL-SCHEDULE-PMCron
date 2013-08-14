@@ -1,0 +1,6 @@
+programming considerations
+a) Don't let any dialog box exceed the width of 320 and the height of 200.
+   There are some poor people with VGA adapters.
+b) Please, comment code changes in english. Hints and error reports are
+   accepted in german, too.
+c) Don't use tabs, use an editor with a CR-LF pair for end-of-line.

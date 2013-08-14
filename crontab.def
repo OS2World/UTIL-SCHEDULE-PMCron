@@ -1,0 +1,3 @@
+NAME crontab WINDOWCOMPAT Newfiles
+DESCRIPTION "Cron Daemon Communication Program"
+STACKSIZE 0x8000

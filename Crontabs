@@ -1,0 +1,29 @@
+# Dies ist eine Steuerdatei fr den Cron-D„mon.
+# Kommentarzeilen stehen hinter einem Doppelkreuz oder einem Semikolon.
+# Leerzeilen sind im Prinzip erlaubt, werden aber bei der n„chsten
+# Schreiboperation dieser Datei durch den D„mon entfernt.
+# Kommentarzeilen werden durch crontab nicht angezeigt. Fr eine Liste der
+# erlaubten Eintr„ge rufe man crontab ohne Parameter auf.
+#
+# Vorsicht ist bei DOS-Kommandos und Programmen geboten, die eine
+# Benutzerinteraktion oder eigene Session verlangen (PM-Programme!!!!!!)
+# PM-Programme z.B. starten mit
+# "0 12 * * * start /N /B /PM PmMsg 12 Uhr, fertig werden! >nul 2>&1",
+# damit keine tempot„ren Dateien angelegt werden. Dagegen sollten Programme
+# mit eine Benutzung der Standardausgabe nicht mit start gestartet werden.
+# "0 0 * * * type \\server\global\bootlisting" kopiert alle Daten in die
+# Standardausgabe, die dann vom D„mon in dessen Ausgabedatei umgelenkt wird.
+# #############################################################################
+#
+# Jedesmal temp. Dateien l”schen, die noch im Zugriff waren.
+#CronStart del e:\cron\*.tmp 1>nul 2>&1
+CronStart echo Start des D„mon
+CronStop echo Ende des D„mon
+#0 12 * * * 1,2,3,4 echo 12 Uhr, gehen wir essen? | mail Bro
+#0 12 * * * 5 echo Leute, einpacken, gleich wird hier dicht gemacht! | mail Bro
+#0 3 * * * 2,3,4,5,6 Backup /Incr
+#0 3 * * * 1 Backup /Full
+#Geschickt: Wenn nicht explizit angegeben, ist die Standardeingabe NUL, da
+#sind dann nette Tricks drin und fehlerhafte Programmzeilen, wo das Programm
+#von der Standardeingabe liest (Filter) h„ngen nicht im System rum.
+#cronstop time > e:\cron\StopTime

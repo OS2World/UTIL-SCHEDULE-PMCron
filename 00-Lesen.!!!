@@ -1,0 +1,37 @@
+                              Cron, Version 1.21
+
+LÑuft nur mit EMX 0.9a (aufwÑrts?). Benîtigte DLLs sind EMX und EMXLIBCM.
+Die neuen DLLs mit den Fixes aus EMXFIX04 fÅr EMX 0.9b liegen bei.
+
+Zugehîrige Dateien:
+  crond.exe     Jawoll, das isser! Der neue PM-Cron-DÑmon.
+  cronddeu.hlp  Die recht umfangreiche Hilfe zum Cron DÑmon in Deutsch.
+  crondeng.hlp  Die recht umfangreiche Hilfe zum Cron DÑmon in Englisch.
+  crondeng.hlp  Die recht umfangreiche Hilfe zum Cron DÑmon in Franzîsisch.
+  crontab.exe   SelbsterklÑrend, einfach nur "crontab" aufrufen. Damit werden
+                Befehle an den DÑmon abgeschickt. crontab manipuliert NICHT
+                an der Crontabs-Datei herum, das macht der DÑmon selber.
+                Alternativ kann auch der DÑmon selber benutzt werden.
+                Die zweite Seite des "Einstellungen..."-Notebooks erlaubt
+                alle énderungen.
+  Crontabs      Vielleicht ist eine kleine Beispieldatei vorhanden. Dann
+                kînnt ihr sie auch benutzen. Mehr und in unterschiedlichen
+                Sprachen beschriebene Beispiele finden sich in der Online-
+                Hilfe zu crond.
+  (Andere)      Quellcode des Programms.
+
+Florian Gro·e-Coosmann, coosman@uni-muenster.de
+
+énderungen am Code: Bis auf das makefile KEINE Tabulatoren verwenden, die mag
+                    ich ums Verrecken nicht! CRLF am Zeilenende finde ich
+                    Klasse und ein ^Z am Dateiende ÅberflÅssig.
+                    Wer will und hat darf diff benutzen.
+
+Die Programme habe ich getestet und fÅr "gut" befunden, der DÑmon scheint kein
+kummulativer Speicherfresser zu sein, obwohl die statische Grî·e von ca. 512K
+(EMXLIBCM und EMX machen den Braten fett) recht happig ist.
+Trîstlich: Der DÑmon wacht normalerweise nur alle Stunde einmal auf, um neue
+Startzeiten zu berechnen, da fÑllt das Rausswappen leicht.
+
+Wer hat Lust, den Kram auf die niederlÑndisch, italienisch, spanisch, etc. zu
+Åbersetzen?

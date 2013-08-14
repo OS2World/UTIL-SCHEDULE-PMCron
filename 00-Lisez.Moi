@@ -1,0 +1,47 @@
+                              Cron, Version 1.21
+
+Pour fonctionner, Cron a besoin des bibliothŠques d'ex‚cution EMX 0.9a
+ou ult‚rieure. Les librairies utilis‚es sont EMX et EMXLIBCM.
+
+                                   -
+
+Liste des fichiers :
+
+ crond.exe     Le nouveau d‚mon Cron pour le Gestionnaire de Pr‚sentation.
+ cronddeu.hlp  Aide en ligne, en allemand.
+ crondeng.hlp  Aide en ligne, en anglais.
+ crondfra.hlp  Aide en ligne, en fran‡ais.
+ crontab.exe   Lancez ce programme sans paramŠtre pour obtenir le mode
+               d'emploi. Crontab ne manipule pas directement le fichier
+               Crontabs, mais envoie les instructions correspondant …
+               vos requˆtes au d‚mon Cron. Les fonctions du programme
+               Crontab peuvent ˆtre accomplies en utilisant la deuxiŠme
+               page du bloc-notes de paramŠtres du d‚mon Cron.
+ Crontabs      Fichier exemple d'‚v‚nements. Des exemples
+               suppl‚mentaires, dans la langue choisie, sont disponibles
+               dans l'aide en ligne.
+ (autres)      Les sources du programme.
+
+                                   -
+
+Modification du code :
+
+               N'utilisez pas de tabulation (sauf dans le makefile). Je
+               n'aime pas ‡a. Utilisez la paire CR/LF en fin de ligne,
+               mais pas de ^Z … la fin du fichier. Vous pouvez utiliser
+               diff.
+
+Les programmes ont ‚t‚ test‚s, et fonctionnent parfaitement. Le d‚mon
+n'utilise que peu de m‚moire quand il s'ex‚cute longtemps, bien qu'il
+occupe … peu prŠs 512k (les bibliothŠques EMXLIBCM et EMX sont
+gourmandes).
+Bonne nouvelle : le d‚mon ne se r‚veille qu'une fois par heure si aucun
+‚v‚nement n'est pr‚vu dans ce laps de temps. Il sera donc swapp‚ par le
+systŠme.
+
+Qui est volontaire pour traduire ce programme en hollandais, italien,
+espagnol, etc...?
+
+                                   -
+
+Florian Groáe-Coosmann, coosman@uni-muenster.de

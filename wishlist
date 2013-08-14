@@ -1,0 +1,3 @@
+- more robust program starter
+- user definable maximum delay before crond dies. System shutdown should be
+  suppressed while waiting for the AtExit jobs.

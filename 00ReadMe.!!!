@@ -1,0 +1,33 @@
+                              Cron, Version 1.21
+
+It runs only with EMX 0.9a (or above?). Needed DLLs are EMX and EMXLIBCM.
+The new DLLs with the fixes from EMXFIX04 of EMX 0.9b are included.
+
+Related files:
+  crond.exe     Yes, This is the new PM cron daemon.
+  cronddeu.hlp  The extensive help to the cron daemon in german.
+  crondeng.hlp  The extensive help to the cron daemon in english.
+  crondfra.hlp  The extensive help to the cron daemon in french.
+  crontab.exe   Self documenting. Simply, call "crontab". With this program
+                commands are send to the daemon. crontab DOESN'T manipulate
+                the Crontabs file, this is done by the daemon itself.
+                Alternatively, you can use the daemon itself. The second
+                page of the "settings..." notebook allows all changes.
+  Crontabs      Probably, there is a little example file. You can use it. More
+                and in different languages explained examples will be found
+                in the online help of crond.
+  (Others)      The source code of the program.
+
+Florian Groáe-Coosmann, coosman@uni-muenster.de
+
+Code changes:   Don't use ANY tabulators (excepting in makefile). I don't like
+                them. Use CRLF at end-of-line and don't use ^Z at end-of-file.
+                You may use diff if you want.
+
+The programs are tested, they work very well. The daemon doesn't eat much
+memory even when running long times, although the statical size reaches about
+512K (EMXLIBCM and EMX are hungry).
+Good: The daemon awakes only one time a hour if nothing is to do. It will be
+swapped out by the system.
+
+Who is like to translate this stuff into netherlands, italian, spanish etc.?

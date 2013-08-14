@@ -1,0 +1,471 @@
+DLGINCLUDE 1 "cron_id.h"
+
+DLGTEMPLATE IDD_NOTEBOOK LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "Daemon settings", IDD_NOTEBOOK, 0, 0, 319, 200, NOT
+            FS_DLGBORDER | FS_SIZEBORDER | WS_VISIBLE | NOT WS_SAVEBITS,
+            FCF_SYSMENU | FCF_TITLEBAR | FCF_MAXBUTTON
+    BEGIN
+        CONTROL         "", IDDE_NOTEBOOK_PAGES, 0, 0, 319, 200, WC_NOTEBOOK,
+                        BKS_BACKPAGESBR | BKS_MAJORTABRIGHT | BKS_SQUARETABS |
+                        BKS_STATUSTEXTLEFT | BKS_TABTEXTLEFT | WS_TABSTOP |
+                        WS_VISIBLE
+    END
+END
+
+DLGTEMPLATE IDD_CRON_FILE LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "Crontabs|Page 1 of 2", IDD_CRON_FILE, 0, 0, 251, 146, NOT
+            FS_DLGBORDER | WS_VISIBLE | NOT WS_SAVEBITS
+    BEGIN
+        GROUPBOX        "Extras", -1, 1, 102, 250, 41
+        AUTOCHECKBOX    "Cronst~art processing", IDDE_CRON_ATSTARTUP, 7, 121,
+                        193, 10, WS_GROUP
+        AUTOCHECKBOX    "Cronst~op processing", IDDE_CRON_ATEXIT, 7, 106,
+                        193, 10
+        GROUPBOX        "file", -1, 1, 32, 250, 61
+        LTEXT           "file containing the Crontabs data:", -1, 6, 72, 175,
+                        10, DT_WORDBREAK | DT_MNEMONIC
+        ENTRYFIELD      "", IDDE_CRON_FILENAME, 8, 59, 235, 8, ES_MARGIN |
+                        ES_READONLY | WS_GROUP
+        PUSHBUTTON      "~Change filename...", IDDE_CRON_FILENAMECHANGE, 6,
+                        38, 86, 14
+        DEFPUSHBUTTON   "~Help", IDDE_CRON_HELP, 6, 4, 40, 14, WS_GROUP
+    END
+END
+
+DLGTEMPLATE IDD_CRONTABS LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "Crontabs entries|Page 2 of 2", IDD_CRONTABS, 0, 0, 251, 168,
+            NOT FS_DLGBORDER | WS_VISIBLE | NOT WS_SAVEBITS
+    BEGIN
+        GROUPBOX        "~New command", -1, 1, 122, 250, 44, DT_MNEMONIC |
+                        NOT WS_GROUP
+        ENTRYFIELD      "", IDDE_CRONTABS_ENTRY, 8, 147, 235, 8, ES_MARGIN
+        PUSHBUTTON      "~Add", IDDE_CRONTABS_ADD, 6, 127, 40, 14, WS_GROUP |
+                        WS_DISABLED
+        PUSHBUTTON      "~Change", IDDE_CRONTABS_CHANGE, 49, 127, 40, 14,
+                        WS_DISABLED
+        PUSHBUTTON      "A~bort", IDDE_CRONTABS_ABORT, 92, 127, 40, 14,
+                        WS_DISABLED
+        GROUPBOX        "~Existing entries", -1, 1, 24, 250, 95, DT_MNEMONIC
+        LISTBOX         IDDE_CRONTABS_LIST, 7, 46, 239, 66, LS_MULTIPLESEL |
+                        LS_HORZSCROLL
+                        PRESPARAMS PP_FONTNAMESIZE, "8.Courier"
+        PUSHBUTTON      "~Delete", IDDE_CRONTABS_DELETE, 6, 28, 40, 14,
+                        WS_DISABLED
+        PUSHBUTTON      "Edi~t", IDDE_CRONTABS_EDIT, 49, 28, 40, 14,
+                        WS_DISABLED
+        DEFPUSHBUTTON   "~Help", IDDE_CRONTABS_HELP, 6, 4, 40, 14, WS_GROUP
+    END
+END
+
+DLGTEMPLATE IDD_OUTPUT LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "Output", IDD_OUTPUT, 0, 0, 251, 137, NOT FS_DLGBORDER |
+            WS_VISIBLE | NOT WS_SAVEBITS
+    BEGIN
+        GROUPBOX        "File", -1, 1, 49, 250, 88
+        LTEXT           "~Number of output files:", -1, 6, 115, 116, 11,
+                        DT_MNEMONIC
+        CONTROL         "", IDDE_OUTPUT_COUNT, 172, 86, 73, 41, WC_COMBOBOX,
+                        CBS_DROPDOWNLIST | WS_GROUP | WS_TABSTOP |
+                        WS_VISIBLE
+        LTEXT           "Filesize ~threshold:", -1, 6, 104, 114, 8,
+                        DT_MNEMONIC
+        CONTROL         "", IDDE_OUTPUT_THRES, 172, 78, 73, 35, WC_COMBOBOX,
+                        CBS_DROPDOWNLIST | WS_GROUP | WS_TABSTOP |
+                        WS_VISIBLE
+        LTEXT           "Path of output files:", -1, 6, 90, 121, 8
+        ENTRYFIELD      "", IDDE_OUTPUT_PATH, 8, 76, 235, 8, ES_MARGIN |
+                        ES_READONLY | WS_GROUP
+        PUSHBUTTON      "Change ~path...", IDDE_OUTPUT_PATHCHANGE, 6, 55, 69,
+                        14
+        AUTOCHECKBOX    "~Ignore output", IDDE_OUTPUT_IGNORE_OUTPUT, 6, 30,
+                        93, 10, WS_GROUP
+        DEFPUSHBUTTON   "~Help", IDDE_OUTPUT_HELP, 6, 4, 40, 14, WS_GROUP
+    END
+END
+
+DLGTEMPLATE IDD_OUTPUT_PATH LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "Output path", IDD_OUTPUT_PATH, 0, 0, 260, 138, WS_VISIBLE,
+            FCF_SYSMENU | FCF_TITLEBAR
+    BEGIN
+        LTEXT           "Current ~output path:", -1, 6, 125, 184, 8,
+                        DT_MNEMONIC
+        ENTRYFIELD      "", IDDE_OUTPUT_PATH_ENTRY, 8, 112, 245, 8,
+                        ES_MARGIN | WS_GROUP
+        LTEXT           "~Possible paths and drives:", -1, 6, 95, 188, 8,
+                        DT_MNEMONIC
+        LISTBOX         IDDE_OUTPUT_PATH_LIST, 6, 26, 248, 66, WS_GROUP
+        DEFPUSHBUTTON   "~OK", DID_OK, 6, 4, 40, 14, WS_GROUP
+        PUSHBUTTON      "~Cancel", DID_CANCEL, 49, 4, 40, 14
+        PUSHBUTTON      "~Help", -1, 92, 4, 40, 14, BS_HELP
+    END
+END
+
+DLGTEMPLATE IDD_TCP LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "TCP/IP", IDD_TCP, 0, 0, 251, 126, NOT FS_DLGBORDER | WS_VISIBLE |
+            NOT WS_SAVEBITS
+    BEGIN
+        GROUPBOX        "File", -1, 1, 56, 250, 66
+        LTEXT           "file containing computernames from which it is perm"
+                        "itted to access:", -1, 6, 92, 211, 20, DT_WORDBREAK
+        ENTRYFIELD      "", IDDE_TCP_FILENAME, 8, 83, 235, 8, ES_MARGIN |
+                        ES_READONLY | WS_GROUP
+        PUSHBUTTON      "~Change filename...", IDDE_TCP_FILENAMECHANGE, 6,
+                        62, 86, 14
+        AUTOCHECKBOX    "~Permit access via TCP/IP", IDDE_TCP_ALLOWACCESS, 6,
+                        30, 138, 10, WS_GROUP
+        DEFPUSHBUTTON   "~Help", IDDE_TCP_HELP, 6, 4, 40, 14, WS_GROUP
+    END
+END
+
+DLGTEMPLATE IDD_GENERAL LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "General", IDD_GENERAL, 0, 0, 251, 153, NOT FS_DLGBORDER |
+            WS_VISIBLE | NOT WS_SAVEBITS
+    BEGIN
+        GROUPBOX        "~Language", -1, 1, 32, 250, 41, DT_MNEMONIC
+        LTEXT           "Please, select your preferred ~language:", -1, 6,
+                        33, 117, 29, DT_WORDBREAK | DT_MNEMONIC
+        CONTROL         "", IDDE_GENERAL_LANGUAGE, 126, 28, 119, 35,
+                        WC_COMBOBOX, CBS_DROPDOWNLIST | WS_GROUP |
+                        WS_TABSTOP | WS_VISIBLE
+        LTEXT           "The change takes effect after the next restart!",
+                        IDDE_GENERAL_LANGUAGE_WARNING, 126, 35, 119, 15,
+                        DT_WORDBREAK | NOT WS_GROUP
+        DEFPUSHBUTTON   "~Help", IDDE_GENERAL_HELP, 6, 4, 40, 14, WS_GROUP
+    END
+END
+
+DLGTEMPLATE IDD_ABOUT LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "", IDD_ABOUT, 1, 1, 150, 65, FS_ICON | FS_NOBYTEALIGN |
+            WS_VISIBLE
+    BEGIN
+        CTEXT           "OS/2 Presentation Manager", -1, 0, 50, 150, 8,
+                        DT_VCENTER
+        CTEXT           "Cron-Daemon", -1, 0, 39, 150, 8, DT_VCENTER
+        CTEXT           "Version 1.21", -1, 0, 28, 150, 8, DT_VCENTER
+        ICON            ID_CRON, ID_CRON, 13, 28, 16, 21
+        DEFPUSHBUTTON   "~OK", DID_OK, 60, 9, 30, 12
+    END
+END
+
+DLGTEMPLATE IDD_NOTEBOOK_G LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "DÑmon-Einstellungen", IDD_NOTEBOOK_G, 0, 0, 322, 200, NOT
+            FS_DLGBORDER | FS_SIZEBORDER | WS_VISIBLE | NOT WS_SAVEBITS,
+            FCF_SYSMENU | FCF_TITLEBAR | FCF_MAXBUTTON
+    BEGIN
+        CONTROL         "", IDDE_NOTEBOOK_PAGES_G, 0, 0, 322, 200,
+                        WC_NOTEBOOK, BKS_BACKPAGESBR | BKS_MAJORTABRIGHT |
+                        BKS_SQUARETABS | BKS_STATUSTEXTLEFT |
+                        BKS_TABTEXTLEFT | WS_TABSTOP | WS_VISIBLE
+    END
+END
+
+DLGTEMPLATE IDD_CRON_FILE_G LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "Crontabs|Seite 1 von 2", IDD_CRON_FILE_G, 0, 0, 251, 146, NOT
+            FS_DLGBORDER | WS_VISIBLE | NOT WS_SAVEBITS
+    BEGIN
+        GROUPBOX        "Extras", -1, 1, 102, 250, 41
+        AUTOCHECKBOX    "Cronst~art-Abarbeitung", IDDE_CRON_ATSTARTUP_G, 7,
+                        121, 193, 10, WS_GROUP
+        AUTOCHECKBOX    "Cronst~op-Abarbeitung", IDDE_CRON_ATEXIT_G, 7, 106,
+                        193, 10
+        GROUPBOX        "Datei", -1, 1, 32, 250, 61
+        LTEXT           "Datei mit den ~Crontabs-Daten:", -1, 6, 72, 175, 10,
+                        DT_WORDBREAK | DT_MNEMONIC
+        ENTRYFIELD      "", IDDE_CRON_FILENAME_G, 8, 59, 235, 8, ES_MARGIN |
+                        ES_READONLY | WS_GROUP
+        PUSHBUTTON      "~Dateinamen Ñndern...", IDDE_CRON_FILENAMECHANGE_G,
+                        6, 38, 97, 14
+        DEFPUSHBUTTON   "~Hilfe", IDDE_CRON_HELP_G, 6, 4, 40, 14, WS_GROUP
+    END
+END
+
+DLGTEMPLATE IDD_CRONTABS_G LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "Crontabs-EintrÑge|Seite 2 von 2", IDD_CRONTABS_G, 0, 0, 251,
+            168, NOT FS_DLGBORDER | WS_VISIBLE | NOT WS_SAVEBITS
+    BEGIN
+        GROUPBOX        "~Neuer Befehl", -1, 1, 122, 250, 44, DT_MNEMONIC |
+                        NOT WS_GROUP
+        ENTRYFIELD      "", IDDE_CRONTABS_ENTRY_G, 8, 147, 235, 8, ES_MARGIN
+        PUSHBUTTON      "Hin~zufÅgen", IDDE_CRONTABS_ADD_G, 6, 127, 56, 14,
+                        WS_GROUP | WS_DISABLED
+        PUSHBUTTON      "~éndern", IDDE_CRONTABS_CHANGE_G, 65, 127, 41, 14,
+                        WS_DISABLED
+        PUSHBUTTON      "~Abbruch", IDDE_CRONTABS_ABORT_G, 109, 127, 45, 14,
+                        WS_DISABLED
+        GROUPBOX        "~Vorhandene EintrÑge", -1, 1, 24, 250, 95,
+                        DT_MNEMONIC
+        LISTBOX         IDDE_CRONTABS_LIST_G, 7, 46, 239, 66, LS_MULTIPLESEL |
+                        LS_HORZSCROLL
+                        PRESPARAMS PP_FONTNAMESIZE, "8.Courier"
+        PUSHBUTTON      "~Lîschen", IDDE_CRONTABS_DELETE_G, 6, 28, 45, 14,
+                        WS_DISABLED
+        PUSHBUTTON      "~Bearbeiten", IDDE_CRONTABS_EDIT_G, 54, 28, 56, 14,
+                        WS_DISABLED
+        DEFPUSHBUTTON   "~Hilfe", IDDE_CRONTABS_HELP_G, 6, 4, 40, 14,
+                        WS_GROUP
+    END
+END
+
+DLGTEMPLATE IDD_OUTPUT_G LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "Ausgabe", IDD_OUTPUT_G, 0, 0, 251, 137, NOT FS_DLGBORDER |
+            WS_VISIBLE | NOT WS_SAVEBITS
+    BEGIN
+        GROUPBOX        "Datei", -1, 1, 49, 250, 88
+        LTEXT           "~Anzahl der Ausgabedateien:", -1, 6, 115, 116, 11,
+                        DT_MNEMONIC
+        CONTROL         "", IDDE_OUTPUT_COUNT_G, 172, 86, 73, 41,
+                        WC_COMBOBOX, CBS_DROPDOWNLIST | WS_GROUP |
+                        WS_TABSTOP | WS_VISIBLE
+        LTEXT           "Dateigrî·e-~Schwellenwert:", -1, 6, 104, 114, 8,
+                        DT_MNEMONIC
+        CONTROL         "", IDDE_OUTPUT_THRES_G, 172, 78, 73, 35,
+                        WC_COMBOBOX, CBS_DROPDOWNLIST | WS_GROUP |
+                        WS_TABSTOP | WS_VISIBLE
+        LTEXT           "Pfad fÅr die Ausgabedateien:", -1, 6, 90, 121, 8
+        ENTRYFIELD      "", IDDE_OUTPUT_PATH_G, 8, 76, 235, 8, ES_MARGIN |
+                        ES_READONLY | WS_GROUP
+        PUSHBUTTON      "~Pfad Ñndern...", IDDE_OUTPUT_PATHCHANGE_G, 6, 55,
+                        68, 14
+        AUTOCHECKBOX    "Ausgabe ~ignorieren", IDDE_OUTPUT_IGNORE_OUTPUT_G,
+                        6, 30, 93, 10, WS_GROUP
+        DEFPUSHBUTTON   "~Hilfe", IDDE_OUTPUT_HELP_G, 6, 4, 40, 14, WS_GROUP
+    END
+END
+
+DLGTEMPLATE IDD_OUTPUT_PATH_G LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "Ausgabepfad", IDD_OUTPUT_PATH_G, 0, 0, 260, 138, WS_VISIBLE,
+            FCF_SYSMENU | FCF_TITLEBAR
+    BEGIN
+        LTEXT           "Der ~Ausgabepfad ist:", -1, 6, 125, 184, 8,
+                        DT_MNEMONIC
+        ENTRYFIELD      "", IDDE_OUTPUT_PATH_ENTRY_G, 8, 112, 245, 8,
+                        ES_MARGIN | WS_GROUP
+        LTEXT           "Mîgliche ~Pfade oder Laufwerke:", -1, 6, 95, 188, 8,
+                        DT_MNEMONIC
+        LISTBOX         IDDE_OUTPUT_PATH_LIST_G, 6, 26, 248, 66, WS_GROUP
+        DEFPUSHBUTTON   "~OK", DID_OK, 6, 4, 40, 14, WS_GROUP
+        PUSHBUTTON      "~Abbrechen", DID_CANCEL, 49, 4, 55, 14
+        PUSHBUTTON      "~Hilfe", -1, 107, 4, 40, 14, BS_HELP
+    END
+END
+
+DLGTEMPLATE IDD_TCP_G LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "TCP/IP", IDD_TCP_G, 0, 0, 251, 126, NOT FS_DLGBORDER |
+            WS_VISIBLE | NOT WS_SAVEBITS
+    BEGIN
+        GROUPBOX        "Datei", -1, 1, 56, 250, 66
+        LTEXT           "Datei mit Rechnernamen, von denen aus zugegriffen w"
+                        "erden darf:", -1, 6, 92, 195, 20, DT_WORDBREAK
+        ENTRYFIELD      "", IDDE_TCP_FILENAME_G, 8, 83, 235, 8, ES_MARGIN |
+                        ES_READONLY | WS_GROUP
+        PUSHBUTTON      "~Dateinamen Ñndern...", IDDE_TCP_FILENAMECHANGE_G,
+                        6, 62, 97, 14
+        AUTOCHECKBOX    "~Zugriff durch TCP/IP erlauben",
+                        IDDE_TCP_ALLOWACCESS_G, 6, 30, 138, 10, WS_GROUP
+        DEFPUSHBUTTON   "~Hilfe", IDDE_TCP_HELP_G, 6, 4, 40, 14, WS_GROUP
+    END
+END
+
+DLGTEMPLATE IDD_GENERAL_G LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "Allgemein", IDD_GENERAL_G, 0, 0, 251, 153, NOT FS_DLGBORDER |
+            WS_VISIBLE | NOT WS_SAVEBITS
+    BEGIN
+        GROUPBOX        "~Sprache", -1, 1, 32, 250, 41, DT_MNEMONIC
+        LTEXT           "Bitte wÑhlen Sie Ihre bevorzugte ~Sprache:", -1, 6,
+                        33, 117, 29, DT_WORDBREAK | DT_MNEMONIC
+        CONTROL         "", IDDE_GENERAL_LANGUAGE_G, 126, 28, 119, 35,
+                        WC_COMBOBOX, CBS_DROPDOWNLIST | WS_GROUP |
+                        WS_TABSTOP | WS_VISIBLE
+        LTEXT           "Die énderung wird erst nach einem Neustart wirksam!",
+                        IDDE_GENERAL_LANGUAGE_WARNING_G, 126, 35, 119, 15,
+                        DT_WORDBREAK | NOT WS_GROUP
+        DEFPUSHBUTTON   "~Hilfe", IDDE_GENERAL_HELP_G, 6, 4, 40, 14,
+                        WS_GROUP
+    END
+END
+
+DLGTEMPLATE IDD_ABOUT_G LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "", IDD_ABOUT_G, 1, 1, 150, 65, FS_ICON | FS_NOBYTEALIGN |
+            WS_VISIBLE
+    BEGIN
+        CTEXT           "OS/2 Presentation Manager", -1, 0, 50, 150, 8,
+                        DT_VCENTER
+        CTEXT           "Cron-DÑmon", -1, 0, 39, 150, 8, DT_VCENTER
+        CTEXT           "Version 1.21", -1, 0, 28, 150, 8, DT_VCENTER
+        ICON            ID_CRON_G, ID_CRON_G, 13, 28, 16, 21
+        DEFPUSHBUTTON   "~OK", DID_OK, 60, 9, 30, 12
+    END
+END
+
+DLGTEMPLATE IDD_NOTEBOOK_F LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "Configuration", IDD_NOTEBOOK_F, 0, 0, 319, 200, NOT
+            FS_DLGBORDER | FS_SIZEBORDER | WS_VISIBLE | NOT WS_SAVEBITS,
+            FCF_SYSMENU | FCF_TITLEBAR | FCF_MAXBUTTON
+    BEGIN
+        CONTROL         "", IDDE_NOTEBOOK_PAGES_F, 0, 0, 319, 200,
+                        WC_NOTEBOOK, BKS_BACKPAGESBR | BKS_MAJORTABRIGHT |
+                        BKS_SQUARETABS | BKS_STATUSTEXTLEFT |
+                        BKS_TABTEXTLEFT | WS_TABSTOP | WS_VISIBLE
+    END
+END
+
+DLGTEMPLATE IDD_CRON_FILE_F LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "Crontabs|Page 1 de 2", IDD_CRON_FILE_F, 0, 0, 251, 146, NOT
+            FS_DLGBORDER | WS_VISIBLE | NOT WS_SAVEBITS
+    BEGIN
+        GROUPBOX        "Divers", -1, 1, 102, 250, 41
+        AUTOCHECKBOX    "Traitement des Cron~start", IDDE_CRON_ATSTARTUP_F,
+                        7, 121, 193, 10, WS_GROUP
+        AUTOCHECKBOX    "Traitement des Cronst~op", IDDE_CRON_ATEXIT_F, 7,
+                        106, 193, 10
+        GROUPBOX        "Fichier", -1, 1, 32, 250, 61
+        LTEXT           "Fichier des donnÇes ~Crontabsˇ:", -1, 6, 72, 175,
+                        10, DT_WORDBREAK | DT_MNEMONIC
+        ENTRYFIELD      "", IDDE_CRON_FILENAME_F, 8, 59, 235, 8, ES_MARGIN |
+                        ES_READONLY | WS_GROUP
+        PUSHBUTTON      "~Recherche...", IDDE_CRON_FILENAMECHANGE_F, 6, 38,
+                        65, 14
+        DEFPUSHBUTTON   "~Aide", IDDE_CRON_HELP_F, 6, 4, 40, 14, WS_GROUP
+    END
+END
+
+DLGTEMPLATE IDD_CRONTABS_F LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "EntrÇes Crontabs|Page 2 de 2", IDD_CRONTABS_F, 0, 0, 251, 168,
+            NOT FS_DLGBORDER | WS_VISIBLE | NOT WS_SAVEBITS
+    BEGIN
+        GROUPBOX        "~Nouvel ÇvÇnement", -1, 1, 122, 250, 44,
+                        DT_MNEMONIC | NOT WS_GROUP
+        ENTRYFIELD      "", IDDE_CRONTABS_ENTRY_F, 8, 147, 235, 8, ES_MARGIN
+        PUSHBUTTON      "Aj~outer", IDDE_CRONTABS_ADD_F, 6, 127, 42, 14,
+                        WS_GROUP | WS_DISABLED
+        PUSHBUTTON      "~Remplacer", IDDE_CRONTABS_CHANGE_F, 51, 127, 54,
+                        14, WS_DISABLED
+        PUSHBUTTON      "Annu~ler", IDDE_CRONTABS_ABORT_F, 108, 127, 43, 14,
+                        WS_DISABLED
+        GROUPBOX        "êvÇnements ~dÇfinis", -1, 1, 24, 250, 95,
+                        DT_MNEMONIC
+        LISTBOX         IDDE_CRONTABS_LIST_F, 7, 46, 239, 66, LS_MULTIPLESEL |
+                        LS_HORZSCROLL
+                        PRESPARAMS PP_FONTNAMESIZE, "8.Courier"
+        PUSHBUTTON      "~Effacer", IDDE_CRONTABS_DELETE_F, 6, 28, 41, 14,
+                        WS_DISABLED
+        PUSHBUTTON      "~Modifier", IDDE_CRONTABS_EDIT_F, 50, 28, 43, 14,
+                        WS_DISABLED
+        DEFPUSHBUTTON   "~Aide", IDDE_CRONTABS_HELP_F, 6, 4, 40, 14,
+                        WS_GROUP
+    END
+END
+
+DLGTEMPLATE IDD_OUTPUT_F LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "Sortie", IDD_OUTPUT_F, 0, 0, 251, 137, NOT FS_DLGBORDER |
+            WS_VISIBLE | NOT WS_SAVEBITS
+    BEGIN
+        GROUPBOX        "Fichier", -1, 1, 49, 250, 88
+        LTEXT           "~Nombre de fichiers de sortieˇ:", -1, 6, 115, 132,
+                        11, DT_MNEMONIC
+        CONTROL         "", IDDE_OUTPUT_COUNT_F, 172, 86, 73, 41,
+                        WC_COMBOBOX, CBS_DROPDOWNLIST | WS_GROUP |
+                        WS_TABSTOP | WS_VISIBLE
+        LTEXT           "Taille ~limiteˇ:", -1, 6, 104, 135, 8, DT_MNEMONIC
+        CONTROL         "", IDDE_OUTPUT_THRES_F, 172, 78, 73, 35,
+                        WC_COMBOBOX, CBS_DROPDOWNLIST | WS_GROUP |
+                        WS_TABSTOP | WS_VISIBLE
+        LTEXT           "RÇpertoire fichiers de sortieˇ:", -1, 6, 90, 145, 8
+        ENTRYFIELD      "", IDDE_OUTPUT_PATH_F, 8, 76, 235, 8, ES_MARGIN |
+                        ES_READONLY | WS_GROUP
+        PUSHBUTTON      "Autre ~rÇpertoire...", IDDE_OUTPUT_PATHCHANGE_F, 6,
+                        55, 84, 14
+        AUTOCHECKBOX    "~Ignorer les sorties", IDDE_OUTPUT_IGNORE_OUTPUT_F,
+                        6, 30, 93, 10, WS_GROUP
+        DEFPUSHBUTTON   "~Aide", IDDE_OUTPUT_HELP_F, 6, 4, 40, 14, WS_GROUP
+    END
+END
+
+DLGTEMPLATE IDD_OUTPUT_PATH_F LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "RÇpertoire de sortie", IDD_OUTPUT_PATH_F, 0, 0, 260, 138,
+            WS_VISIBLE, FCF_SYSMENU | FCF_TITLEBAR
+    BEGIN
+        LTEXT           "RÇ~pertoire actuelˇ:", -1, 6, 125, 184, 8,
+                        DT_MNEMONIC
+        ENTRYFIELD      "", IDDE_OUTPUT_PATH_ENTRY_F, 8, 112, 245, 8,
+                        ES_MARGIN | WS_GROUP
+        LTEXT           "~RÇpertoires et unitÇsˇ:", -1, 6, 95, 188, 8,
+                        DT_MNEMONIC
+        LISTBOX         IDDE_OUTPUT_PATH_LIST_F, 6, 26, 248, 66, WS_GROUP
+        DEFPUSHBUTTON   "~OK", DID_OK, 6, 4, 40, 14, WS_GROUP
+        PUSHBUTTON      "Annu~ler", DID_CANCEL, 49, 4, 40, 14
+        PUSHBUTTON      "~Aide", -1, 92, 4, 40, 14, BS_HELP
+    END
+END
+
+DLGTEMPLATE IDD_TCP_F LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "TCP/IP", IDD_TCP_F, 0, 0, 251, 126, NOT FS_DLGBORDER |
+            WS_VISIBLE | NOT WS_SAVEBITS
+    BEGIN
+        GROUPBOX        "Fichier", -1, 1, 56, 250, 66
+        LTEXT           "Fichier contenant les noms des postes autorisÇs Ö a"
+                        "ccÇder au dÇmonˇ:", -1, 6, 92, 211, 20,
+                        DT_WORDBREAK
+        ENTRYFIELD      "", IDDE_TCP_FILENAME_F, 8, 83, 235, 8, ES_MARGIN |
+                        ES_READONLY | WS_GROUP
+        PUSHBUTTON      "Autre ~fichier...", IDDE_TCP_FILENAMECHANGE_F, 6,
+                        62, 69, 14
+        AUTOCHECKBOX    "Au~toriser l'accäs via TCP/IP",
+                        IDDE_TCP_ALLOWACCESS_F, 6, 30, 138, 10, WS_GROUP
+        DEFPUSHBUTTON   "~Aide", IDDE_TCP_HELP_F, 6, 4, 40, 14, WS_GROUP
+    END
+END
+
+DLGTEMPLATE IDD_GENERAL_F LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "Divers", IDD_GENERAL_F, 0, 0, 251, 153, NOT FS_DLGBORDER |
+            WS_VISIBLE | NOT WS_SAVEBITS
+    BEGIN
+        GROUPBOX        "~Langue", -1, 1, 32, 250, 41, DT_MNEMONIC
+        LTEXT           "~Langue choisieˇ:", -1, 6, 33, 117, 29,
+                        DT_WORDBREAK | DT_MNEMONIC
+        CONTROL         "", IDDE_GENERAL_LANGUAGE_F, 126, 28, 119, 35,
+                        WC_COMBOBOX, CBS_DROPDOWNLIST | WS_GROUP |
+                        WS_TABSTOP | WS_VISIBLE
+        LTEXT           "Modification prise en compte au prochain lancement.",
+                        IDDE_GENERAL_LANGUAGE_WARNING_F, 126, 35, 119, 15,
+                        DT_WORDBREAK | NOT WS_GROUP
+        DEFPUSHBUTTON   "~Aide", IDDE_GENERAL_HELP_F, 6, 4, 40, 14, WS_GROUP
+    END
+END
+
+DLGTEMPLATE IDD_ABOUT_F LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "", IDD_ABOUT_F, 1, 1, 150, 65, FS_ICON | FS_NOBYTEALIGN |
+            WS_VISIBLE
+    BEGIN
+        CTEXT           "OS/2 Gestionnaire de PrÇsentation", -1, 0, 50, 150,
+                        8, DT_VCENTER
+        CTEXT           "DÇmon Cron", -1, 0, 39, 150, 8, DT_VCENTER
+        CTEXT           "Version 1.21", -1, 0, 28, 150, 8, DT_VCENTER
+        ICON            ID_CRON_F, ID_CRON_F, 13, 28, 16, 21
+        DEFPUSHBUTTON   "~OK", DID_OK, 60, 9, 30, 12
+    END
+END

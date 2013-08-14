@@ -1,0 +1,503 @@
+#include <os2.h>
+#include "cron_id.h"
+
+rcinclude crond.dlg
+
+#ifdef LF
+# undef LF
+#endif
+#ifdef CRLF
+# undef CRLF
+#endif
+#define LF "\x0A"
+#define CRLF "\x0D\x0A"
+
+;******************************************************************************
+;******************************************************************************
+;* English ********************************************************************
+;******************************************************************************
+;******************************************************************************
+POINTER ID_CRON crond.ico
+
+MENU ID_CRON LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    SUBMENU "~Change", -1
+       BEGIN
+          MENUITEM "~Next output file",    IDME_NEXTFILE,       MIS_TEXT
+          MENUITEM "~Settings...",         IDD_NOTEBOOK,        MIS_TEXT
+       END
+    SUBMENU "~Help", -1
+       BEGIN
+          MENUITEM "Help ~index",          IDME_HELPINDEX,      MIS_TEXT
+          MENUITEM "~General help",        IDME_HELPGENERAL,    MIS_TEXT
+          MENUITEM "~Using help",          IDME_HELPUSINGHELP,  MIS_TEXT
+          MENUITEM "~Keys help",           IDME_HELPKEYS,       MIS_TEXT
+          MENUITEM SEPARATOR
+          MENUITEM "~Product information", IDD_ABOUT,           MIS_TEXT
+       END
+END
+
+; These Strings are global (access by more than one file)
+STRINGTABLE
+BEGIN
+ IDS_Title              "Cron Daemon"
+ IDS_NotEnoughMemory    "Not enough free memory" LF
+ IDS_NoOutputFile       "Can't create (another) output file in the given path."
+ IDS_StatusAtStartup    "at startup"
+ IDS_StatusAtExit       "at exit"
+ IDS_StatusNormal       "normal"
+ IDS_StatusCommunication "communication"
+ IDS_DieOnSigSig        "crond ends due a double signal"
+END
+
+
+; These Strings are local to the file cronmain
+STRINGTABLE
+BEGIN
+ IDS_NoCrontabsFile     "Can't process the file ""nul"" as a ""Crontabs"" "
+                        "file."
+ IDS_ErrCrontabsFile    "Can't process the ""Crontabs"" file, using the "
+                        "file ""nul"" instead."
+ IDS_DefaultCrontabsFile "Can't process the ""Crontabs"" file, the default "
+                        "file in the starting path of the program will be "
+                        "used."
+ IDS_DefaultOutput      "The saved output path doesn't exist, the default "
+                        "output path will be used."
+ IDS_NoTCPIPFile        "Can't process the file containing the TCP/IP "
+                        "access list."
+ IDS_DefaultTCPIPFile   "Can't process the file containing the TCP/IP "
+                        "access list, using the file ""nul"" instead."
+ IDS_ErrInitialize      "Error calling WinInitialize" LF
+ IDS_ErrMsgQueue        "Error calling WinCreateMsgQueue" LF
+ IDS_ErrReassignStdIO   "Can't reassign the standard files to ""nul"""
+ IDS_AlreadyStarted     "The Cron Daemon is already running!"
+ IDS_CantCallMyself     "Calling myself returns %lu: %s" LF
+ IDS_ErrCreateSem       "Can't creat a semaphore"
+ IDS_ErrQMod            "Error calling DosQueryModuleName"
+ IDS_ErrNamedPipe       "Can't create the ""named pipe"""
+ IDS_ErrStartDaemon     "Can't start the daemon sub process"
+ IDS_ErrStartPipe       "Can't start the ""named pipe"" sub process"
+ IDS_ErrStartSocket     "Can't start the ""TCP/IP"" sub process"
+ IDS_CronStarts         "The Cron Daemon has been started (again)" LF
+ IDS_CronEnds           "The Cron Daemon terminates" LF
+END
+
+; These Strings are local to the file cron_pm
+STRINGTABLE
+BEGIN
+ IDS_StatusLine         "Status: "
+ IDS_NextstartLine      "Next program start: "
+ IDS_NextstartUnknown   "not registered/computed"
+ IDS_CurrCrontabsLine   "Crontabs file: "
+ IDS_CurrOutputLine     "Current output file: "
+ IDS_EnterValidOutput   "Please, enter an existing and valid path not "
+                        "containing any readonly file or directories of the "
+                        "form ""Cron000?.out""!"
+ IDS_InvalidFormat      "The given file can't be read or doesn't has the "
+                        "needed format."
+ IDS_NoTCPIPFound       "This computer doesn't support TCP/IP."
+ IDS_TitleNewCron       "New name of the ""Crontabs"" file"
+ IDS_TitleNewTCPIP      "File containing the permitting list of TCP/IP accesses"
+ IDS_HelpCantLoad       "Can't load or display the help or there is no help "
+                        "for this topic."
+ IDS_JobJustDeleted     "The currently edited entry has been deleted." LF
+                        "You may use the key combination [Shift]-[Ins] "
+                        "to insert the original job command into the entry "
+                        "field. You have to press the ""Add"" button to "
+                        "reinsert the job command."
+ IDS_EntryInClipboard   "The currently edited entry has been placed into "
+                        "the clipboard. You may wish to use it again by "
+                        "pressing [Shift]-[Ins] in case of a mistake."
+END
+
+; These Strings are local to the file tables
+STRINGTABLE
+BEGIN
+ IDS_ThisIsTheJobList   "crond: This is the job list on %s" CRLF
+ IDS_NoJobList          "(Currently, there are no periodically starting jobs.)"
+                        CRLF
+ IDS_JobDeletedNotWritten "crond: The given entry has been deleted" CRLF
+                        "but there was an error saving it to disk!" CRLF
+                        "This will be tried again later." CRLF
+ IDS_JobDeleted         "crond: The given entry has been deleted." CRLF
+ IDS_JobSavedNotWritten "crond: The given job has been added" CRLF
+                        "but there was an error saving it to disk!" CRLF
+                        "This will be tried again later." CRLF
+ IDS_JobSaved           "crond: The given job will be executed." CRLF
+ IDS_AutoCloseingPipe   "The client pipe has been broken due a timeout." LF
+ IDS_AutoCloseingSocket "The TCP/IP connection to a client has been broken "
+                        "due a timeout." LF
+END
+
+; These Strings are local to the file server
+STRINGTABLE
+BEGIN
+ IDS_0ByteCommunication "Communication buildup with a 0-byte-request." LF
+ IDS_JobNotFound        "crond: There is no job with the given number." CRLF
+ IDS_ErrRequest         "Writing the response on a request"
+ IDS_ErrRequestIncomplete "The response on a request is incomplete." LF
+ IDS_ErrList            "Writing the job list"
+ IDS_ErrListIncomplete  "Transferring the job list is incomplete (%d von %lu "
+                        "byte)" LF
+END
+
+; These Strings are local to the file process
+STRINGTABLE
+BEGIN
+ IDS_TempfileNotDeleted "%s not deleted, rc from DosDelete = %lu" LF
+ IDS_JobEndsNormal      "Process %d ends normally with code %d, %s" LF
+ IDS_JobEndsDueSignal   "Process %d ends due the signal %d, %s" LF
+ IDS_TempfileInaccessable "its output file is in access, yet"
+ IDS_TempfileEmpty      "it has no output"
+ IDS_TempfileFollows    "output follows:"
+ IDS_NoComSpec          "COMSPEC not set!"
+ IDS_NoMemOrNoTempfile  "Not enough free memory or no temp. file accessible "
+                        "to start the process." LF
+ IDS_CantStartJob       "Starting job ""%s"" returns %s" LF
+ IDS_JobStarted         """%s"" started, pid=%d" LF
+ IDS_JobYetActive       "Process %d is still activ, file ""%s"" still in "
+                        "access" LF
+END
+
+; These Strings are local to the file tcpip
+STRINGTABLE
+BEGIN
+ IDS_UnknownHost        "(unknown host)"
+ IDS_NameServerProblem  "There is no connection to the TCP/IP name server "
+                        "or there are problems with the name service."
+ IDS_TCPIPConnection    "connection request via TCP/IP from %s accepted." LF
+ IDS_TCPIPRejected      "connection request via TCP/IP from %s rejected." LF
+END
+
+;******************************************************************************
+;******************************************************************************
+;* Deutsch ********************************************************************
+;******************************************************************************
+;******************************************************************************
+POINTER ID_CRON_G crond.ico
+
+MENU ID_CRON_G LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    SUBMENU "~éndern", -1
+       BEGIN
+          MENUITEM "~NÑchste Ausgabedatei", IDME_NEXTFILE_G,    MIS_TEXT
+          MENUITEM "~Einstellungen...",   IDD_NOTEBOOK_G,       MIS_TEXT
+       END
+    SUBMENU "~Hilfe", -1
+       BEGIN
+          MENUITEM "Hilfe~index",         IDME_HELPINDEX_G,     MIS_TEXT
+          MENUITEM "~Erweiterte Hilfe",   IDME_HELPGENERAL_G,   MIS_TEXT
+          MENUITEM "Hilfe fÅr ~Hilfefunktion", IDME_HELPUSINGHELP_G, MIS_TEXT
+          MENUITEM "Hilfe fÅr ~Tasten",   IDME_HELPKEYS_G,      MIS_TEXT
+          MENUITEM SEPARATOR
+          MENUITEM "~Produktinformation", IDD_ABOUT_G,          MIS_TEXT
+       END
+END
+
+; These Strings are global (access by more than one file)
+STRINGTABLE
+BEGIN
+ IDS_Title_G            "Cron DÑmon"
+ IDS_NotEnoughMemory_G  "Nicht genug freier Speicher" LF
+ IDS_NoOutputFile_G     "Es kann keine (weitere) Ausgabedatei im angegebenen "
+                        "Pfad angelegt werden."
+ IDS_StatusAtStartup_G  "beim Hochfahren"
+ IDS_StatusAtExit_G     "beim Beenden"
+ IDS_StatusNormal_G     "normal"
+ IDS_StatusCommunication_G "Kommunikation"
+ IDS_DieOnSigSig_G      "crond endet aufgrund eines doppelten Signals"
+END
+
+
+; These Strings are local to the file cronmain
+STRINGTABLE
+BEGIN
+ IDS_NoCrontabsFile_G   "Auch die ""Crontabs""-Datei ""nul"" kann nicht "
+                        "verarbeitet werden."
+ IDS_ErrCrontabsFile_G  "Die ""Crontabs""-Datei kann nicht verarbeitet "
+                        "werden, es wird die Datei ""nul"" benutzt."
+ IDS_DefaultCrontabsFile_G "Die ""Crontabs""-Datei kann nicht verarbeitet "
+                        "werden, es wird die Standarddatei aus dem Pfad des "
+                        "Programms benutzt."
+ IDS_DefaultOutput_G    "Der gesicherte Ausgabepfad existiert nicht mehr, es"
+                        " wird der Standardausgabepfad benutzt."
+ IDS_NoTCPIPFile_G      "Die Datei mit der Liste fÅr TCP/IP-Zugriffe kann "
+                        "nicht verarbeitet werden."
+ IDS_DefaultTCPIPFile_G "Die Datei mit der Liste fÅr TCP/IP-Zugriffe kann "
+                        "nicht verarbeitet werden, es wird die Standarddatei"
+                        " ""nul"" benutzt."
+ IDS_ErrInitialize_G    "Fehler beim Aufruf von WinInitialize" LF
+ IDS_ErrMsgQueue_G      "Fehler beim Aufruf von WinCreateMsgQueue" LF
+ IDS_ErrReassignStdIO_G "Fehler beim Zuweisen der Standarddateien auf ""nul"""
+ IDS_AlreadyStarted_G   "Der Cron DÑmon lÑuft bereits!"
+ IDS_CantCallMyself_G   "Selbstaufruf liefert %lu: %s" LF
+ IDS_ErrCreateSem_G     "Fehler beim Anlegen einer Semaphore"
+ IDS_ErrQMod_G          "Fehler beim Aufruf von DosQueryModuleName"
+ IDS_ErrNamedPipe_G     "Fehler beim Anlegen der ""Named Pipe"""
+ IDS_ErrStartDaemon_G   "Fehler beim Starten des DÑmon-Unterprozesses"
+ IDS_ErrStartPipe_G     "Fehler beim Starten des ""Named Pipe""-Unterprozesses"
+ IDS_ErrStartSocket_G   "Fehler beim Starten des ""TCP/IP""-Unterprozesses"
+ IDS_CronStarts_G       "Der Cron DÑmon wurde (erneut) gestartet" LF
+ IDS_CronEnds_G         "Der Cron DÑmon wurde beendet" LF
+END
+
+; These Strings are local to the file cron_pm
+STRINGTABLE
+BEGIN
+ IDS_StatusLine_G       "Status: "
+ IDS_NextstartLine_G    "NÑchster Programmstart: "
+ IDS_NextstartUnknown_G "nicht erfa·t/berechnet"
+ IDS_CurrCrontabsLine_G "Crontabs-Datei: "
+ IDS_CurrOutputLine_G   "Aktuelle Ausgabedatei: "
+ IDS_EnterValidOutput_G "Bitte einen gÅltigen und existierenden Pfad angeben,"
+                        " in dem keine schreibgeschÅtzten Dateien oder "
+                        "Verzeichnisse der Form ""Cron000?.out"" vorkommen!"
+ IDS_InvalidFormat_G    "Die angegebene Datei kann nicht gelesen werden oder "
+                        "hat nicht das gewÅnschte Format."
+ IDS_NoTCPIPFound_G     "Auf diesem Rechner liegt keine TCP/IP-UnterstÅtzung "
+                        "mehr vor."
+ IDS_TitleNewCron_G     "Neuer Name der ""Crontabs""-Datei"
+ IDS_TitleNewTCPIP_G    "Erlaubnisdatei fÅr TCP/IP-Zugriffe"
+ IDS_HelpCantLoad_G     "Ich kann keine Hilfe laden oder anzeigen oder es ist "
+                        "keine Hilfe fÅr diesen Eintrag verfÅgbar."
+ IDS_JobJustDeleted_G   "Der zu editierende Eintrag wurde gelîscht." LF
+                        "Sie kînnen die Tastenkombination [Umschalt]-[Einfg] "
+                        "benutzen, um den originalen Eintrag in das "
+                        "Eingabefeld zu kopieren. Benutzen Sie den "
+                        """HinzufÅgen""-Druckknopf, um das Kommando "
+                        "wieder in die Liste einzufÅgen."
+ IDS_EntryInClipboard_G "Der aktuell zu editierende Eintrag wurde in die "
+                        "Zwischenablage kopiert. Sie kînnen bei einem Fehler "
+                        "mit der Tastenkombination [Umschalt]-[Einfg] den "
+                        "Eintrag zurÅckkopieren."
+END
+
+; These Strings are local to the file tables
+STRINGTABLE
+BEGIN
+ IDS_ThisIsTheJobList_G "crond: Dies ist die Auftragsliste am %s" CRLF
+ IDS_NoJobList_G        "(Es gibt z.Zt. keine periodisch auszufÅhrenden "
+                        "AuftrÑge.)" CRLF
+ IDS_JobDeletedNotWritten_G "crond: Der gewÅnschte Eintrag wurde zwar "
+                        "gelîscht," CRLF
+                        "konnte aber nicht auf der Platte gesichert werden!" CRLF
+                        "Es wird versucht, dies nachzuholen." CRLF
+ IDS_JobDeleted_G       "crond: Der gewÅnschte Eintrag wurde gelîscht." CRLF
+ IDS_JobSavedNotWritten_G "crond: Der angegebene Job ist zwar vermerkt," CRLF
+                        "konnte aber nicht auf der Platte gesichert werden!" CRLF
+                        "Es wird versucht, dies nachzuholen." CRLF
+ IDS_JobSaved_G         "crond: Der angegebene Job wird zur gegebenen Zeit "
+                        "ausgefÅhrt." CRLF
+ IDS_AutoCloseingPipe_G "Die Pipe zu einem Client wird wegen "
+                        "ZeitÅberschreitung abgebaut." LF
+ IDS_AutoCloseingSocket_G "Die TCP/IP-Verbindung zu einem Client wird wegen "
+                        "ZeitÅberschreitung abgebaut." LF
+END
+
+; These Strings are local to the file server
+STRINGTABLE
+BEGIN
+ IDS_0ByteCommunication_G "Kommunikationsaufbau mit 0-Byte-Anfrage" LF
+ IDS_JobNotFound_G      "crond: Es gibt keinen Eintrag mit dieser Nummer." CRLF
+ IDS_ErrRequest_G       "Schreiben der Antwort auf Anfrage"
+ IDS_ErrRequestIncomplete_G "Schreiben der Antwort auf Anfrage nicht "
+                        "vollstÑndig" LF
+ IDS_ErrList_G          "Schreiben der Liste"
+ IDS_ErrListIncomplete_G "Schreiben der Liste nicht vollstÑndig (%d von %lu "
+                        "Byte)" LF
+END
+
+; These Strings are local to the file process
+STRINGTABLE
+BEGIN
+ IDS_TempfileNotDeleted_G "%s nicht gelîscht, rc von DosDelete = %lu" LF
+ IDS_JobEndsNormal_G    "Proze· %d endet normal mit dem Code %d, %s" LF
+ IDS_JobEndsDueSignal_G "Proze· %d endet aufgrund des Signals %d, %s" LF
+ IDS_TempfileInaccessable_G "dessen Ausgabedatei ist noch im Zugriff"
+ IDS_TempfileEmpty_G    "er hat keine Ausgabe"
+ IDS_TempfileFollows_G  "Ausgabe folgt:"
+ IDS_NoComSpec_G        "COMSPEC nicht gesetzt!"
+ IDS_NoMemOrNoTempfile_G "Zuwenig freier Speicher oder keine temp. Datei "
+                        "verfÅgbar, um Proze· zu starten." LF
+ IDS_CantStartJob_G     "Der Start von ""%s"" liefert %s" LF
+ IDS_JobStarted_G       """%s"" gestartet, pid=%d" LF
+ IDS_JobYetActive_G     "Proze· %d ist noch aktiv, Datei ""%s"" noch im "
+                        "Zugriff" LF
+END
+
+; These Strings are local to the file tcpip
+STRINGTABLE
+BEGIN
+ IDS_UnknownHost_G      "(unbekannter Zielrechner)"
+ IDS_NameServerProblem_G "Es besteht keine Verbindung zum TCP/IP-Name-Server "
+                        "oder es gibt andere Probleme mit dem Name-Service."
+ IDS_TCPIPConnection_G  "Verbindungsanfrage vom TCP/IP-Rechner %s angenommen." LF
+ IDS_TCPIPRejected_G    "Verbindungsanfrage vom TCP/IP-Rechner %s verworfen." LF
+END
+
+;******************************************************************************
+;******************************************************************************
+;* Franáais *******************************************************************
+;******************************************************************************
+;******************************************************************************
+POINTER ID_CRON_F crond.ico
+
+MENU ID_CRON_F LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    SUBMENU "~Modifier", -1
+       BEGIN
+          MENUITEM "~Fichier de sortie suivant",IDME_NEXTFILE_F,  MIS_TEXT
+          MENUITEM "~Configuration...",      IDD_NOTEBOOK_F,      MIS_TEXT
+       END
+    SUBMENU "~Aide", -1
+       BEGIN
+          MENUITEM "~Index",                 IDME_HELPINDEX_F,    MIS_TEXT
+          MENUITEM "Aide ~gÇnÇrale",         IDME_HELPGENERAL_F,  MIS_TEXT
+          MENUITEM "~Aide sur l'aide",       IDME_HELPUSINGHELP_F,MIS_TEXT
+          MENUITEM "~Touches",               IDME_HELPKEYS_F,     MIS_TEXT
+          MENUITEM SEPARATOR
+          MENUITEM "Infos ~produit",         IDD_ABOUT_F,         MIS_TEXT
+       END
+END
+
+; These Strings are global (access by more than one file)
+STRINGTABLE
+BEGIN
+ IDS_Title_F            "DÇmon Cron"
+ IDS_NotEnoughMemory_F  "MÇmoire insuffisante" LF
+ IDS_NoOutputFile_F     "Impossible de crÇer un (autre) fichier de sortie "
+                        "dans le rÇpertoire indiquÇ."
+ IDS_StatusAtStartup_F  "initialisation"
+ IDS_StatusAtExit_F     "arràt"
+ IDS_StatusNormal_F     "normal"
+ IDS_StatusCommunication_F "communication"
+ IDS_DieOnSigSig_F      "arràt suite Ö un double signal"
+END
+
+; These Strings are local to the file cronmain
+STRINGTABLE
+BEGIN
+ IDS_NoCrontabsFile_F   "Impossible d'utiliser le fichier ÆnulØ en tant "
+                        "que fichier ÆCrontabsØ."
+ IDS_ErrCrontabsFile_F  "Impossible de traiter le fichier ÆCrontabsØ, "
+                        "utilisation du fichier ÆnulØ Ö la place."
+ IDS_DefaultCrontabsFile_F "Impossible de traiter le fichier ÆCrontabsØ, "
+                        "le fichier par dÇfaut dans le rÇpertoire du "
+                        "programme sera utilisÇ."
+ IDS_DefaultOutput_F    "Le rÇpertoire de sortie n'existe pas, utilisation "
+                        "du rÇpertoire par dÇfaut."
+ IDS_NoTCPIPFile_F      "Impossible de traiter le fichier contenant la "
+                        "liste d'accäs TCP/IP."
+ IDS_DefaultTCPIPFile_F "Impossible de traiter le fichier contenant la "
+                        "liste d'accäs TCP/IP, utilisation du fichier "
+                        "ÆnulØ."
+ IDS_ErrInitialize_F    "Erreur appel WinInitialize" LF
+ IDS_ErrMsgQueue_F      "Erreur appel WinCreateMsgQueue" LF
+ IDS_ErrReassignStdIO_F "Impossible de rÇassigner les fichiers standards "
+                        "Ö ÆnulØ"
+ IDS_AlreadyStarted_F   "Le DÇmon Cron s'exÇcute dÇjÖˇ!"
+ IDS_CantCallMyself_F   "Un appel Ö moi-màme renvoie %luˇ: %s" LF
+ IDS_ErrCreateSem_F     "Impossible de crÇer un sÇmaphore"
+ IDS_ErrQMod_F          "Erreur appel DosQueryModuleName"
+ IDS_ErrNamedPipe_F     "Impossible de crÇer le Ætube nommÇØ"
+ IDS_ErrStartDaemon_F   "Impossible de crÇer le sous-processus dÇmon"
+ IDS_ErrStartPipe_F     "Impossible de crÇer le sous-processus "
+                        "Ætube nommÇØ"
+ IDS_ErrStartSocket_F   "Impossible de crÇer le sous-processus ÆTCP/IPØ"
+ IDS_CronStarts_F       "Le DÇmon Cron a dÇjÖ ÇtÇ lancÇ (encore)" LF
+ IDS_CronEnds_F         "Le DÇmon Cron s'arràte" LF
+END
+
+; These Strings are local to the file cron_pm
+STRINGTABLE
+BEGIN
+ IDS_StatusLine_F       "êtatˇ: "
+ IDS_NextstartLine_F    "Prochain ÇvÇnementˇ: "
+ IDS_NextstartUnknown_F "aucun prÇvu"
+ IDS_CurrCrontabsLine_F "Fichier d'ÇvÇnementsˇ: "
+ IDS_CurrOutputLine_F   "Fichier de sortieˇ: "
+ IDS_EnterValidOutput_F "Veuillez entrer un chemin ne contenant aucun "
+                        "fichier en lecture seule ou rÇpertoire portant "
+                        "un nom de la forme ÆCron000?.OutØ."
+ IDS_InvalidFormat_F    "Le fichier ne peut àtre lu ou n'est pas au format "
+                        "correct."
+ IDS_NoTCPIPFound_F     "Cet ordintateur ne connait pas TCP/IP."
+ IDS_TitleNewCron_F     "Nouveau nom du fichier ÆCrontabsØ"
+ IDS_TitleNewTCPIP_F    "Fichier contenant la liste d'autorisations "
+                        "d'accäs TCP/IP"
+ IDS_HelpCantLoad_F     "Impossible de charger ou d'afficher l'aide, ou bien "
+                        "il n'y a pas d'aide sur ce sujet."
+ IDS_JobJustDeleted_F   "L'ÇvÇnement en cours d'Çdition a ÇtÇ supprimÇ." LF
+                        "Vous pouvez utiliser les touches Maj+Inser "
+                        "pour copier la description initiale de l'ÇvÇnement "
+                        "dans le champ de saisie. SÇlectez la plaquette "
+                        "Ajouter pour rÇ-insÇrer l'ÇvÇnement dans la liste."
+ IDS_EntryInClipboard_F "L'ÇvÇnement en cours d'Çdition a ÇtÇ copiÇ dans "
+                        "le presse-papiers. En cas d'erreur, vous pouvez "
+                        "le restaurer par Maj+Inser."
+END
+
+; These Strings are local to the file tables
+STRINGTABLE
+BEGIN
+ IDS_ThisIsTheJobList_F "crond: liste des ÇvÇnements sur %s" CRLF
+ IDS_NoJobList_F        "(Actuellement, aucun ÇvÇnement pÇriodique)" CRLF
+ IDS_JobDeletedNotWritten_F "crond: l'ÇvÇnement a ÇtÇ supprimÇ " CRLF
+                        "mais il s'est produit une erreur lors de la" CRLF
+                        "sauvegarde sur disque. Un autre essai sera" CRLF
+                        "effectuÇ plus tard." CRLF
+ IDS_JobDeleted_F       "crond: l'ÇvÇnement a ÇtÇ supprimÇ." CRLF
+ IDS_JobSavedNotWritten_F "crond: l'ÇvÇnement spÇcifiÇ a ÇtÇ ajoutÇ" CRLF
+                        "mais il s'est produit une erreur lors de la" CRLF
+                        "sauvegarde sur disque. Un autre essai sera" CRLF
+                        "effectuÇ plus tard." CRLF
+ IDS_JobSaved_F         "crond: l'ÇvÇnement aura lieu." CRLF
+ IDS_AutoCloseingPipe_F "Le tube vers le client a ÇtÇ rompu suite "
+                        "Ö une attente trop longue." LF
+ IDS_AutoCloseingSocket_F "La connexion TCP/IP avec un client a ÇtÇ rompue "
+                        "suite Ö une attente trop longue." LF
+END
+
+; These Strings are local to the file server
+STRINGTABLE
+BEGIN
+ IDS_0ByteCommunication_F "Initialisation de la communication par une "
+                        "requàte vide." LF
+ IDS_JobNotFound_F      "crond: Il n'y a pas d'ÇvÇnement portant ce numÇro." CRLF
+ IDS_ErrRequest_F       "êcriture de la rÇponse Ö une requàte"
+ IDS_ErrRequestIncomplete_F "La rÇponse Ö une requàte n'est pas terminÇe." LF
+ IDS_ErrList_F          "êcriture de la liste d'ÇvÇnements"
+ IDS_ErrListIncomplete_F "Le transfert de la liste d'ÇvÇnements n'est pas "
+                        "terminÇ (%d sur %lu octets)" LF
+END
+
+; These Strings are local to the file process
+STRINGTABLE
+BEGIN
+ IDS_TempfileNotDeleted_F "%s pas effacÇ, DosDelete retourne %lu" LF
+ IDS_JobEndsNormal_F    "Fin normale du processus %d avec le code %d, %s" LF
+ IDS_JobEndsDueSignal_F "Fin du processus %d causÇe par le signal %d, %s" LF
+ IDS_TempfileInaccessable_F "son fichier de sortie est actuellement ouvert"
+ IDS_TempfileEmpty_F    "il n'a pas de sortie"
+ IDS_TempfileFollows_F  "sortieˇ:"
+ IDS_NoComSpec_F        "COMSPEC non dÇfiniˇ!"
+ IDS_NoMemOrNoTempfile_F "MÇmoire insuffisante ou pas de fichier temporaire "
+                        "accessible pour lancer le processus." LF
+ IDS_CantStartJob_F     "Le lancement du programme Æ%sØ retourne %s" LF
+ IDS_JobStarted_F       "Æ%sØ lancÇ, pid=%d" LF
+ IDS_JobYetActive_F     "Le processus %d est toujours actif, le fichier "
+                        "Æ%sØ toujours utilisÇ" LF
+END
+
+; These Strings are local to the file tcpip
+STRINGTABLE
+BEGIN
+ IDS_UnknownHost_F      "(hìte inconnu)"
+ IDS_NameServerProblem_F "Il n'y a pas de connexion avec le serveur de noms "
+                        "TCP/IP ou il y a un probläme avec le serveur de "
+                        "noms."
+ IDS_TCPIPConnection_F  "connexion de %s via TCP/IP acceptÇe." LF
+ IDS_TCPIPRejected_F    "connexion de %s via TCP/IP refusÇe." LF
+END
+
+rcinclude help.rc
